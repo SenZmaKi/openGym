@@ -119,7 +119,8 @@ if you want to try it before installing anything.
   what you logged. You approve every change. It runs on your server with your own provider key
   (Anthropic, OpenAI, Gemini or any OpenAI-compatible endpoint, Ollama included).
 - An [MCP server](mcp/README.md) so an assistant like Claude Desktop can answer questions about your
-  training history. Read-only and local; not part of the Docker build.
+  training history and, with a paired bearer token, manage routines, workouts, schedules, settings
+  and server operations. Supports stdio or an optional OAuth-protected HTTP service for ChatGPT.
 
 The full list of what changed release by release is in the [changelog](CHANGELOG.md).
 

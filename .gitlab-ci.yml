@@ -206,6 +206,7 @@ test:mcp:
     paths:
       - mcp/.npm
   script:
+    - npm ci --prefix api --omit=optional --ignore-scripts
     - cd mcp
     - npm ci --cache .npm --prefer-offline --ignore-scripts
     - npx vitest run

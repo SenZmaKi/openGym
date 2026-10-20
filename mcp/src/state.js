@@ -3,6 +3,12 @@
    tool call without a restart. */
 import fs from 'node:fs'
 import path from 'node:path'
+import { AsyncLocalStorage } from 'node:async_hooks'
+
+const remoteContext = new AsyncLocalStorage()
+export function withRemoteState(state, user, fn) {
+  return remoteContext.run({ state: state ? { ...defaultsShape(), ...state } : null, user }, fn)
+}
 
 const DATA_DIR = process.env.OPENGYM_DATA || path.join(process.cwd(), 'data')
 
@@ -114,6 +120,7 @@ export function init() {
 
 // Returns the state object, or null for a fresh account that never signed in on a device.
 export function getState() {
+  if (remoteContext.getStore()) return remoteContext.getStore().state
   init()
   const file = stateFile(_uid)
   // Re-read if the file's mtime changed since our last load — covers watcher omissions and
@@ -138,6 +145,7 @@ export function getState() {
 
 // Returns the user record (id + name). No passkey material, no VAPID keys, no push subs.
 export function getUser() {
+  if (remoteContext.getStore()) return remoteContext.getStore().user
   init()
   const u = _db.users.find(x => x.id === _uid) || { id: _uid, name: 'Profile', created: null }
   return { id: u.id, name: u.name, created: u.created || null }

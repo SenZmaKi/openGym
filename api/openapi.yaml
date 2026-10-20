@@ -1561,6 +1561,7 @@ paths:
   /api/data/rev:
     get:
       tags: [data]
+      operationId: getDataRev
       summary: Current revision of the caller's profile state
       description: |
         The `rev` that `GET /api/data` would return, without the document. Signed-in clients poll

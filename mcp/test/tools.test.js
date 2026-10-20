@@ -1200,6 +1200,17 @@ describe('preview_session', () => {
   })
 })
 
+test('workout readers retain advanced entry and set metadata', () => {
+  const w = S.workouts.find(w => w.entries?.length && w.entries[0].sets?.length)
+  w.entries[0].note = 'Controlled tempo'
+  w.entries[0].planned = { reps: 8 }
+  Object.assign(w.entries[0].sets[0], { rir: 2, rpe: 8, drops: [{ w: 20, r: 6 }], futureSetField: 'preserved' })
+  _seedStateForTests(S)
+  const saved = call('get_workout', w.id ? { workout_id: w.id } : { date: w.d })
+  expect(saved.entries[0]).toMatchObject({ note: 'Controlled tempo', planned: { reps: 8 } })
+  expect(saved.entries[0].sets[0]).toMatchObject({ rir: 2, rpe: 8, drops: [{ w: 20, r: 6 }], futureSetField: 'preserved' })
+})
+
 /* ---------- a workout's photos and videos ---------- */
 
 // workouts[].media — progress photos and form-check clips — are the owner's own files. The MCP

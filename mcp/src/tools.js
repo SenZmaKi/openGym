@@ -1,7 +1,7 @@
 /* The eight read-only tools. Each handler returns JSON; labels.js pre-substitutes any
    {0}/{1} template the lib returns so the LLM gets final text, not template strings.
    ISO dates are validated on the way in; the handlers never see 'yesterday'. */
-import { z } from 'zod'
+import { z } from 'zod/v3'
 import { getState, getUser } from './state.js'
 import {
   fmt, setLabel, exLine, muscleName, policyName, friendlyDuration, ratio, muscleOrder
@@ -59,12 +59,14 @@ function entryView(e, S) {
   const cfg = { ...(e.target || {}), id: e.id }
   const mode = modeOf(cfg)
   return {
+    ...e,
     id: e.id,
     name: ex.n,
     body_part: ex.bp || null,
     mode,
     target: e.target || null,
     sets: (e.sets || []).map(s => ({
+      ...s,
       done: !!s.done,
       label: setLabel(e.id, { ...s, done: undefined }, cfg),
       // Taken to failure (the app's "F"): RIR 0 for effort when nothing was rated by hand.

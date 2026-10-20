@@ -1,0 +1,38 @@
+name: Deploy Phidel
+
+on:
+  workflow_run:
+    workflows: [Tests]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-phidel
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.repository == 'SenZmaKi/openGym' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify the tested commit is still main
+        if: github.event_name == 'workflow_run'
+        env:
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$TESTED_SHA" || {
+            echo 'A newer main commit exists; wait for its Tests run.'
+            exit 1
+          }
+      - name: Deploy the existing stack without replacing volumes
+        uses: SenZmaKi/dokploy-sentry@main
+        with:
+          dokploy-url: ${{ secrets.DOKPLOY_URL }}
+          dokploy-api-key: ${{ secrets.DOKPLOY_API_KEY }}
+          dokploy-compose-id: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+          max-wait-minutes: '20'

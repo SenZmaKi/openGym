@@ -15,6 +15,7 @@ buildNpmPackage rec {
 
   # The MCP server reads shared domain helpers from the sibling frontend/src/lib; include them.
   frontendSrc = ./../../frontend;
+  apiSpec = ./../../api/openapi.yaml;
 
   nodejs = nodejs_22;
 
@@ -37,6 +38,10 @@ buildNpmPackage rec {
     mkdir -p $out/lib/frontend/src
     cp -r $frontendSrc/src/lib $out/lib/frontend/src/lib
 
+    # API operation discovery reads the same contract shipped with the server.
+    mkdir -p $out/lib/api
+    cp $apiSpec $out/lib/api/openapi.yaml
+
     mkdir -p $out/bin
     makeWrapper ${nodejs_22}/bin/node $out/bin/opengym-mcp \
       --add-flags "$out/lib/opengym-mcp/src/index.js"
@@ -44,7 +49,7 @@ buildNpmPackage rec {
   '';
 
   meta = with lib; {
-    description = "openGym MCP server — read-only stdio bridge for LLM clients";
+    description = "openGym MCP server — stdio analytics and authenticated API bridge for LLM clients";
     homepage = "https://gitlab.com/DuarteSantos8/opengym";
     license = licenses.agpl3Plus;
     platforms = nodejs.meta.platforms;

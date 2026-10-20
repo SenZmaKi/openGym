@@ -1,0 +1,25 @@
+# Optional OAuth-protected MCP service. Use alongside docker-compose.yml.
+services:
+  mcp:
+    profiles: [mcp]
+    build:
+      context: .
+      dockerfile: mcp/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      MCP_TRANSPORT: http
+      MCP_HTTP_HOST: 0.0.0.0
+      MCP_HTTP_PORT: "3001"
+      OPENGYM_URL: http://api:${PORT:-3000}
+      BETTER_AUTH_URL: ${MCP_PUBLIC_URL:-}
+      BETTER_AUTH_SECRET: ${MCP_AUTH_SECRET:-}
+      DATABASE_PATH: /app/data/opengym-mcp.sqlite
+    ports:
+      - "127.0.0.1:${MCP_PORT:-3001}:3001"
+    volumes:
+      - mcp-data:/app/data
+volumes:
+  mcp-data:

@@ -22,7 +22,7 @@ const LIB = new URL('../../frontend/src/lib/', import.meta.url)
 // which one, rather than which import chain.
 const MODULES = [
   'i18n-core.js', 'format.js', 'exercises.js', 'exercises-data.js',
-  'history.js', 'muscles.js', 'onerm.js', 'progression.js', 'queue.js'
+  'complete-session.js', 'training-actions.js', 'history.js', 'muscles.js', 'onerm.js', 'progression.js', 'queue.js'
 ]
 
 let failed = 0
@@ -38,7 +38,7 @@ for (const m of MODULES) {
 
 // The real assertion: the server's own entry points, which pull the whole graph transitively.
 // A module added to the graph later is covered by this even if the list above never learns it.
-for (const entry of ['../src/state.js', '../src/tools.js']) {
+for (const entry of ['../src/state.js', '../src/tools.js', '../src/api.js', '../src/api-tools.js', '../src/profile.js', '../src/server.js', '../src/auth.js', '../src/http.js', '../src/web-auth.js', '../src/toolset.js', '../src/read-scope.js', '../src/api-native-tools.js', '../src/exercise-search.js', '../src/training-tools.js', '../src/domain-tools.js', '../src/workflow.js']) {
   try {
     await import(new URL(entry, import.meta.url))
     console.log(`  ok    mcp/${entry.replace('../', '')}`)

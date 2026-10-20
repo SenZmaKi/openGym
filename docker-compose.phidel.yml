@@ -1,0 +1,174 @@
+# Production deployment on Phidel. Existing volumes are external: never recreate or rename them.
+name: opengym
+
+services:
+  # One-time exercise media download.
+  # Downloads the images/GIFs into the persistent media volumes.
+  media:
+    image: alpine/git
+    volumes:
+      - media-img:/out/img
+      - media-gif:/out/gif
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        if [ -z "$$(ls -A /out/img 2>/dev/null)" ]; then
+          echo "↓ Downloading exercise media (~140 MB, one time)…"
+          echo "  Source: github.com/hasaneyldrm/exercises-dataset"
+
+          git clone --depth 1 \
+            https://github.com/hasaneyldrm/exercises-dataset \
+            /tmp/ds
+
+          cp /tmp/ds/images/*.jpg /out/img/
+          cp /tmp/ds/videos/*.gif /out/gif/
+
+          echo "✓ Exercise media ready ($$(ls /out/img | wc -l) images)."
+        else
+          echo "✓ Exercise media already present — skipping download."
+        fi
+    restart: "no"
+
+  # openGym backend API.
+  # Uses the prebuilt GHCR image. Nothing is built locally.
+  api:
+    image: opengym-phidel-api:local
+    pull_policy: build
+    build:
+      context: ./api
+      target: default
+    restart: unless-stopped
+
+    environment:
+      PORT: ${PORT:-3000}
+      DATA_DIR: /data
+
+      # Safe with the bundled web container because it overwrites
+      # the forwarded client-address headers.
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+
+      # Authentication / deployment
+      RP_ID: ${RP_ID}
+      ORIGIN: ${ORIGIN}
+      RP_NAME: ${RP_NAME:-openGym}
+
+      # Optional configuration
+      ADMIN_UIDS: ${ADMIN_UIDS:-}
+      INVITE_ONLY: ${INVITE_ONLY:-0}
+      ALLOW_GUEST: ${ALLOW_GUEST:-1}
+      DEFAULT_LANG: ${DEFAULT_LANG:-en}
+      PASSWORD_LOGIN: ${PASSWORD_LOGIN:-0}
+
+      # Activity log
+      AUDIT_LOG: ${AUDIT_LOG:-1}
+      AUDIT_MAX: ${AUDIT_MAX:-5000}
+      AUDIT_DAYS: ${AUDIT_DAYS:-90}
+      AUDIT_IP: ${AUDIT_IP:-off}
+
+      # Sessions
+      SESSION_DAYS: ${SESSION_DAYS:-90}
+
+      # Media uploads
+      MEDIA_UPLOADS: ${MEDIA_UPLOADS:-1}
+      MEDIA_QUOTA_MB: ${MEDIA_QUOTA_MB:-200}
+      MEDIA_IMAGE_MAX_MB: ${MEDIA_IMAGE_MAX_MB:-2}
+      MEDIA_GIF_MAX_MB: ${MEDIA_GIF_MAX_MB:-8}
+      MEDIA_VIDEO_MAX_MB: ${MEDIA_VIDEO_MAX_MB:-40}
+      MEDIA_VIDEO_MAX_SEC: ${MEDIA_VIDEO_MAX_SEC:-60}
+      MEDIA_GC_GRACE_DAYS: ${MEDIA_GC_GRACE_DAYS:-14}
+      MEDIA_UPLOADS_PER_HOUR: ${MEDIA_UPLOADS_PER_HOUR:-600}
+      MEDIA_MIN_FREE_MB: ${MEDIA_MIN_FREE_MB:-512}
+
+      # Notifications
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
+
+      # AI Coach
+      COACH_DISABLED: ${COACH_DISABLED:-0}
+      COACH_JOB_TIMEOUT_MS: ${COACH_JOB_TIMEOUT_MS:-300000}
+
+    volumes:
+      # Contains accounts, passkeys, workouts, uploads,
+      # session secrets, audit logs, VAPID keys, etc.
+      - opengym-data:/data
+
+      # Codex/provider credential cache.
+      - coach-auth:/coach-auth
+
+  # openGym frontend + nginx.
+  # Uses the prebuilt GHCR image. Nothing is built locally.
+  web:
+    image: opengym-phidel-web:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    restart: unless-stopped
+
+    depends_on:
+      media:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+
+    ports:
+      - "${WEB_PORT:-8080}:${NGINX_PORT:-80}"
+
+    environment:
+      NGINX_PORT: ${NGINX_PORT:-80}
+
+      # nginx sends /api requests here.
+      BACKEND: ${BACKEND:-api}
+      PORT: ${PORT:-3000}
+
+      # Docker embedded DNS
+      RESOLVER: ${RESOLVER:-127.0.0.11}
+
+      # Leave empty unless Cloudflare is actually in front.
+      CF_CONNECTING_IP: ${CF_CONNECTING_IP:-}
+
+      # Empty because openGym is served at the domain root.
+      BASE_PATH: ${BASE_PATH:-}
+
+      MEDIA_UPLOAD_MAX: ${MEDIA_UPLOAD_MAX:-48m}
+
+    volumes:
+      - media-img:/usr/share/nginx/html/img:ro
+      - media-gif:/usr/share/nginx/html/gif:ro
+
+
+  mcp:
+    image: opengym-phidel-mcp:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: mcp/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    environment:
+      MCP_TRANSPORT: http
+      MCP_HTTP_HOST: 0.0.0.0
+      MCP_HTTP_PORT: "3001"
+      OPENGYM_URL: http://api:${PORT:-3000}
+      BETTER_AUTH_URL: ${MCP_PUBLIC_URL:?Set the public HTTPS MCP origin}
+      BETTER_AUTH_SECRET: ${MCP_AUTH_SECRET:?Set a persistent random auth secret}
+      DATABASE_PATH: /app/data/opengym-mcp.sqlite
+    volumes:
+      - mcp-data:/app/data
+
+volumes:
+  opengym-data:
+    external: true
+    name: opengym-server-t7dhkk_opengym-data
+  media-img:
+    external: true
+    name: opengym-server-t7dhkk_media-img
+  media-gif:
+    external: true
+    name: opengym-server-t7dhkk_media-gif
+  coach-auth:
+    external: true
+    name: opengym-server-t7dhkk_coach-auth
+  mcp-data:
+    name: opengym-server-t7dhkk_mcp-data

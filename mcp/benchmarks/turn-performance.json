@@ -1,0 +1,395 @@
+{
+  "method": "Production tool handlers + production API client; simulated backend, no LLM, no real network. Baseline already parallelizes independent calls within each dependency phase. HTTP OAuth validation is outside this harness.",
+  "runtime": "v22.23.3",
+  "simulated_request_delay_ms": 10,
+  "samples": 3,
+  "metadata": {
+    "tools": 91,
+    "metadata_bytes": 83099
+  },
+  "scenarios": [
+    {
+      "scenario": "Routine removal, unit conversion and measurement",
+      "baseline": {
+        "elapsed_ms": 76.5,
+        "rounds": 3,
+        "tool_calls": 3,
+        "api_requests": 6,
+        "reads": 3,
+        "writes": 3,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data",
+          "GET /api/data",
+          "PUT /api/data",
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 27.9,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 1,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      }
+    },
+    {
+      "scenario": "Six-part training overview",
+      "baseline": {
+        "elapsed_ms": 14.3,
+        "rounds": 1,
+        "tool_calls": 6,
+        "api_requests": 12,
+        "reads": 12,
+        "writes": 0,
+        "max_concurrency": 12,
+        "paths": [
+          "GET /api/data",
+          "GET /api/me",
+          "GET /api/data",
+          "GET /api/me",
+          "GET /api/data",
+          "GET /api/me",
+          "GET /api/data",
+          "GET /api/me",
+          "GET /api/data",
+          "GET /api/me",
+          "GET /api/data",
+          "GET /api/me"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 12.5,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 2,
+        "writes": 0,
+        "max_concurrency": 2,
+        "paths": [
+          "GET /api/data",
+          "GET /api/me"
+        ]
+      }
+    },
+    {
+      "scenario": "Resolve three exercise names",
+      "baseline": {
+        "elapsed_ms": 15.2,
+        "rounds": 1,
+        "tool_calls": 3,
+        "api_requests": 3,
+        "reads": 3,
+        "writes": 0,
+        "max_concurrency": 3,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 13.8,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 1,
+        "reads": 1,
+        "writes": 0,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data"
+        ]
+      }
+    },
+    {
+      "scenario": "Find exercises, create and schedule routine",
+      "baseline": {
+        "elapsed_ms": 38,
+        "rounds": 2,
+        "tool_calls": 5,
+        "api_requests": 6,
+        "reads": 5,
+        "writes": 1,
+        "max_concurrency": 4,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 28.5,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 1,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      }
+    },
+    {
+      "scenario": "Find exercises, log workout and weigh-in",
+      "baseline": {
+        "elapsed_ms": 46.6,
+        "rounds": 2,
+        "tool_calls": 5,
+        "api_requests": 6,
+        "reads": 5,
+        "writes": 1,
+        "max_concurrency": 4,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 27.3,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 1,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      }
+    },
+    {
+      "scenario": "Create routine, schedule and preview",
+      "baseline": {
+        "elapsed_ms": 51,
+        "rounds": 3,
+        "tool_calls": 6,
+        "api_requests": 8,
+        "reads": 7,
+        "writes": 1,
+        "max_concurrency": 4,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "PUT /api/data",
+          "GET /api/data",
+          "GET /api/me"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 36.9,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 4,
+        "reads": 3,
+        "writes": 1,
+        "max_concurrency": 2,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data",
+          "GET /api/data",
+          "GET /api/me"
+        ]
+      }
+    },
+    {
+      "scenario": "Discover and execute configuration API",
+      "baseline": {
+        "elapsed_ms": 11.8,
+        "rounds": 3,
+        "tool_calls": 3,
+        "api_requests": 1,
+        "reads": 1,
+        "writes": 0,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/config"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 11.4,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 1,
+        "reads": 1,
+        "writes": 0,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/config"
+        ]
+      }
+    },
+    {
+      "scenario": "Pair code creation and redemption",
+      "baseline": {
+        "elapsed_ms": 22.9,
+        "rounds": 2,
+        "tool_calls": 2,
+        "api_requests": 2,
+        "reads": 0,
+        "writes": 2,
+        "max_concurrency": 1,
+        "paths": [
+          "POST /api/pair/create",
+          "POST /api/pair/redeem"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 23.4,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 0,
+        "writes": 2,
+        "max_concurrency": 1,
+        "paths": [
+          "POST /api/pair/create",
+          "POST /api/pair/redeem"
+        ]
+      }
+    },
+    {
+      "scenario": "Repeated configuration reads",
+      "baseline": {
+        "elapsed_ms": 12.5,
+        "rounds": 1,
+        "tool_calls": 6,
+        "api_requests": 6,
+        "reads": 6,
+        "writes": 0,
+        "max_concurrency": 6,
+        "paths": [
+          "GET /api/config",
+          "GET /api/config",
+          "GET /api/config",
+          "GET /api/config",
+          "GET /api/config",
+          "GET /api/config"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 12,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 1,
+        "reads": 1,
+        "writes": 0,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/config"
+        ]
+      }
+    },
+    {
+      "scenario": "Atomic weigh-in plus settings update",
+      "baseline": {
+        "elapsed_ms": 34,
+        "rounds": 2,
+        "tool_calls": 2,
+        "api_requests": 3,
+        "reads": 2,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 22.5,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 1,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      }
+    },
+    {
+      "scenario": "Search and append exercise to routine",
+      "baseline": {
+        "elapsed_ms": 34.7,
+        "rounds": 2,
+        "tool_calls": 3,
+        "api_requests": 4,
+        "reads": 3,
+        "writes": 1,
+        "max_concurrency": 2,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 22.9,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 1,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      }
+    },
+    {
+      "scenario": "Assign routine by name plus rest day",
+      "baseline": {
+        "elapsed_ms": 34.2,
+        "rounds": 2,
+        "tool_calls": 2,
+        "api_requests": 3,
+        "reads": 2,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      },
+      "optimized": {
+        "elapsed_ms": 23.6,
+        "rounds": 1,
+        "tool_calls": 1,
+        "api_requests": 2,
+        "reads": 1,
+        "writes": 1,
+        "max_concurrency": 1,
+        "paths": [
+          "GET /api/data",
+          "PUT /api/data"
+        ]
+      }
+    }
+  ]
+}
