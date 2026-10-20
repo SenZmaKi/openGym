@@ -428,3 +428,13 @@ test('the app\'s active equipment profile stands in when the Coach was told no e
   S.coach.profile.equipment = ['barbell'];
   assert.deepEqual(payload.build(S, { handle: handleFor('u1'), kind: 'create' }).coachProfile.equipment, ['barbell']);
 });
+
+// Calendar drift must not age the shared fixture out of the review window again.
+test('the sample profile remains recent on a future calendar date', t => {
+  t.mock.timers.enable({ apis: ['Date'], now: new Date('2030-01-15T12:00:00Z') });
+  const S = sampleState();
+  const p = payload.build(S, { handle: handleFor('future-fixture'), kind: 'review' });
+  assert.equal(S.workouts[0].d, '2030-01-15');
+  assert.equal(p.window.workouts.length, 1);
+  assert.deepEqual(p.bodyweight.series, [S.bodyweight.at(-1)]);
+});
