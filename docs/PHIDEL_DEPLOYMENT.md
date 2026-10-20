@@ -4,7 +4,9 @@ Production uses the existing Dokploy Compose service `opengym-server-t7dhkk`
 (`BOF2WZ2mSCeMOWbYrp2YO`), connected to `SenZmaKi/openGym`, branch `main`,
 path `./docker-compose.phidel.yml`. Dokploy builds the API, web and MCP images from
 this checkout. No registry credentials are required. Containers are replaced after
-images build; a brief API interruption is possible.
+images build; a brief API interruption is possible. Health checks run every 15 seconds
+(with a 10-second startup period), overriding the upstream five-minute interval that
+otherwise leaves Traefik without a route while containers are starting.
 
 The application stores JSON documents and uploads under `/data`. The four existing
 application/media/provider volumes are explicitly named **external** volumes. Missing

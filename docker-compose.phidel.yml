@@ -38,6 +38,12 @@ services:
       context: ./api
       target: default
     restart: unless-stopped
+    # Override the image's five-minute interval so Traefik can route promptly.
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
     environment:
       PORT: ${PORT:-3000}
@@ -103,6 +109,12 @@ services:
       context: .
       dockerfile: web/Dockerfile
     restart: unless-stopped
+    # Override the image's five-minute interval so Traefik can route promptly.
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
     depends_on:
       media:
@@ -143,6 +155,12 @@ services:
       context: .
       dockerfile: mcp/Dockerfile
     restart: unless-stopped
+    # Override the image's five-minute interval so Traefik can route promptly.
+    healthcheck:
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     depends_on:
       api:
         condition: service_started
