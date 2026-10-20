@@ -1,4 +1,4 @@
-name: Deploy Phidel
+name: deploy-dokploy
 
 on:
   workflow_run:

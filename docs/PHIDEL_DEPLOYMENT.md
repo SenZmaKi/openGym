@@ -18,7 +18,7 @@ Existing runtime environment, RP_ID, ORIGIN, session secret, passkeys and hostna
 be retained. Additional runtime values are `MCP_PUBLIC_URL` (the HTTPS MCP origin) and
 `MCP_AUTH_SECRET` (a persistent random secret). No production secrets belong in Git.
 
-The Deploy Phidel workflow follows a successful Tests workflow on main. It checks that
+The `deploy-dokploy` workflow follows a successful Tests workflow on main. It checks that
 the tested SHA is still current and triggers/polls this existing Compose service. The
 manual workflow_dispatch path is an explicit operator override. Required repository
 secrets: DOKPLOY_URL, DOKPLOY_API_KEY and DOKPLOY_COMPOSE_ID. Dokploy auto-deploy is
